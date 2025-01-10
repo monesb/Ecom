@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg" style="background-color: #ffffff; border-bottom: 2px solid #028a0f;">
     <div class="container-fluid">
-        <a class="navbar-brand" href="index.php" style="color: #028a0f; font-weight: bold;">Informatique.net</a>
+        <a class="navbar-brand" href="Stage.php" style="color: #028a0f; font-weight: bold;">Informatique.net</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon" style="color: #028a0f;"></span>
         </button>
