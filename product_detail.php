@@ -1,46 +1,3 @@
-<?php
-session_start();
-
-include 'bdd.php';
-
-try {
-    $pdo = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8", $dbusername, $dbpassword);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    if (isset($_GET['id'])) {
-        $produit_id = (int)$_GET['id'];
-        $stmt = $pdo->prepare("SELECT * FROM produit WHERE produit_id = :id");
-        $stmt->execute(['id' => $produit_id]);
-        $produit = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$produit) {
-            die("Produit introuvable.");
-        }
-    } else {
-        die("ID de produit non spécifié.");
-    }
-
-    if (isset($_POST['add_to_cart'])) {
-        if (!isset($_SESSION['panier'])) {
-            $_SESSION['panier'] = [];
-        }
-
-        if (isset($_SESSION['panier'][$produit_id])) {
-            $_SESSION['panier'][$produit_id] += 1;
-        } else {
-            $_SESSION['panier'][$produit_id] = 1;
-        }
-
-        header("Location: mon_panier.php");
-        exit();
-    }
-
-} catch (PDOException $e) {
-    echo "Erreur : " . $e->getMessage();
-    exit;
-}
-?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -48,39 +5,51 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($produit['nom']); ?></title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="style.css">
+    
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        /* Réinitialisation globale des marges/paddings */
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
             background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
         }
 
         .product-container {
             display: flex;
-            flex-wrap: wrap;
-            max-width: 1200px;
-            margin: 30px auto;
+            flex-direction: column;
+            align-items: center;
+            max-width: 800px;
+            width: 100%; /* Pour occuper tout l'espace disponible horizontalement */
             background: #fff;
+            margin: 30px auto;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .product-image {
-            flex: 1;
             text-align: center;
+            margin-bottom: 20px; /* Espacement entre l'image et les détails */
         }
 
         .product-image img {
             max-width: 100%;
+            height: auto;
             border-radius: 10px;
         }
 
         .product-details {
-            flex: 1;
-            padding: 20px;
+            text-align: center;
         }
 
         .product-details h1 {
@@ -101,35 +70,37 @@ try {
 
         .btn-container {
             margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
         }
 
         .btn-container a {
-            margin-right: 10px;
+            margin-right: 0; /* Suppression de l'espace indésirable */
         }
     </style>
 </head>
 <body>
-<?php include 'navbar.php'; ?>
 
-<div class="product-container">
-    <div class="product-image">
-        <div class="h1-container">
-        <img src="<?= htmlspecialchars($produit['image']); ?>" alt="<?= htmlspecialchars($produit['nom']); ?>">
+
+    <div class="product-container">
+        <div class="product-image">
+            <img src="<?= htmlspecialchars($produit['image']); ?>" alt="<?= htmlspecialchars($produit['nom']); ?>">
+        </div>
+        <div class="product-details">
+            <h1><?= htmlspecialchars($produit['nom']); ?></h1>
+            
+            <p><?= nl2br(htmlspecialchars($produit['script'])); ?></p>
+            <div class="price">Prix : €<?= htmlspecialchars($produit['prix']); ?></div>
+
+            <form method="post" class="btn-container">
+                <input type="hidden" name="produit_id" value="<?= htmlspecialchars($produit['produit_id']); ?>">
+                <button type="submit" name="add_to_cart" class="btn btn-success">Ajouter au Panier</button>
+                <a href="catalogue.php" class="btn btn-secondary">Retour a</a>
+            </form>
+        </div>
     </div>
-    <div class="product-details">
-        <h1><?= htmlspecialchars($produit['nom']); ?></h1>
-        
-        <p><?= nl2br(htmlspecialchars($produit['script'])); ?></p>
-        <div class="price">Prix : €<?= htmlspecialchars($produit['prix']); ?></div>
 
-        <form method="post" class="btn-container">
-            <input type="hidden" name="produit_id" value="<?= htmlspecialchars($produit['produit_id']); ?>">
-            <button type="submit" name="add_to_cart" class="btn btn-success">Ajouter au Panier</button>
-            <a href="catalogue.php" class="btn btn-secondary">Retour au Catalogue</a>
-        </form>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
